@@ -21,19 +21,48 @@ void setup()
 }
 int speed = 250;
 void optimus(){
-  if (stopDistance(12)){
-    setLeftMotor(-speed);
-    setRightMotor(-speed);
+  if (stopDistance(18)){
+    all_s();
+    delay(30);
+    left_f(250);
+    stopAfterLeft(0.75);
+    forward(250);
+    delay(500);
+    all_s();
+
+    right_f(250);
+    stopAfterRight(0.75);
+    forward(250);
+    delay(1000);
+    all_s();
+    right_f(250);
+    stopAfterRight(0.75);
+    forward(250);
+    delay(500);
+    all_s();
+    left_f(250);
+    stopAfterLeft(0.75);
+
   } else if(moreDistance(20)){
     setBothMotor(speed);
   }
-  
 }
-void loop()
-{
+void otimus_move(){
+  forward(250);
+  stopAfterRight(5);
+  all_s();
+  delay(1000);
+  right_f(250);
+  stopAfterRight(0.75);
+  delay(500);
   left_f(250);
   stopAfterLeft(0.75);
-  delay(500);
+  delay(10000);
+}
+
+void loop()
+{
+  otimus_move();
 
 }
 

@@ -16,6 +16,7 @@
 const int pulses = 20;
 int rotationsSr1 = 0;
 int rotationsSr2 = 0;
+int diameter = 6.5;
 
 // read sensor values
 const int sensorDataInterval =  500;
@@ -85,7 +86,7 @@ void right_f(int speed)
 void right_b(int speed)
 {
   analogWrite(MB2, speed);
-    analogWrite(MB1, 0);
+  analogWrite(MB1, 0);
 }
 void left_b(int speed)
 {
@@ -194,7 +195,7 @@ bool moreDistance(int threshold) {
   return false;
   
 }
-void turnOnDegrees(int degr){
-  stopAfterRight(1);
+void turnDegree(int deg){
+  return;
 }
 #endif
