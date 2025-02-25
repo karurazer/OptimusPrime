@@ -1,4 +1,5 @@
-#include "motor_control.h"
+#include "other.h"
+
 
 
 void setup()
@@ -15,55 +16,63 @@ void setup()
 
   pinMode(TRIG, OUTPUT);
   pinMode(ECHO, INPUT);
+
+  pinMode(13, OUTPUT);
+
   attachInterrupt(digitalPinToInterrupt(SR1), countRotationsSr1, FALLING);
   attachInterrupt(digitalPinToInterrupt(SR2), countRotationsSr2, FALLING);
-  all_s();
+  allS();
+  callibrate();
+  Serial.println(black);
 }
 int speed = 250;
-void optimus(){
-  if (stopDistance(18)){
-    all_s();
+void optimus_avoiding_object(){
+  if (!moreDistance(20)){
+    allS();
     delay(30);
-    left_f(250);
+    leftF(250);
     stopAfterLeft(0.75);
     forward(250);
     delay(500);
-    all_s();
-
-    right_f(250);
+    allS();
+    rightF(250);
     stopAfterRight(0.75);
     forward(250);
     delay(1000);
-    all_s();
-    right_f(250);
+    allS();
+    rightF(250);
     stopAfterRight(0.75);
     forward(250);
     delay(500);
-    all_s();
-    left_f(250);
+    allS();
+    leftF(250);
     stopAfterLeft(0.75);
 
-  } else if(moreDistance(20)){
+  } else if(moreDistance(40)){
     setBothMotor(speed);
   }
 }
-void otimus_move(){
+void otimus_basic_move(){
   forward(250);
   stopAfterRight(5);
-  all_s();
+  allS();
+  back(250);
+  stopAfterRight(5);
+  allS();
   delay(1000);
-  right_f(250);
+  rightF(250);
   stopAfterRight(0.75);
   delay(500);
-  left_f(250);
+  leftF(250);
   stopAfterLeft(0.75);
   delay(10000);
 }
 
+
 void loop()
 {
-  otimus_move();
-
+   
+  optimus_followLine();
 }
 
 
