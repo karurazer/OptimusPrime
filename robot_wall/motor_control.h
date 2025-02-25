@@ -1,6 +1,15 @@
 #ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
+
+
 // PINS
+
+#define NUM_SENSORS 8  
+int sensorPins[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5, A6, A7};
+int sensorValues[NUM_SENSORS];  
+int black = 0;
+
+
 #define MA1 10 // left 
 #define MA2 11 // left
 
@@ -13,14 +22,14 @@
 #define TRIG 9
 #define ECHO 8
 // motor values
+
 const int pulses = 20;
-int rotationsSr1 = 0;
-int rotationsSr2 = 0;
+int rotationsSr1, rotationsSr2 = 0;
 int diameter = 6.5;
 
 // read sensor values
-const int sensorDataInterval =  500;
-int timerSensor = 0;
+const int sensorDataInterval = 500;
+int timerSensor, timerMoreDistance, timerGoodDistance, timerColor = 0;
 
 void countRotationsSr1() 
 {
@@ -30,104 +39,78 @@ void countRotationsSr2()
 {
   rotationsSr2++; 
 }
-void printInfo(String info)
-{
-  if (millis() - sensorDataInterval >= timerSensor)
-  {
-    timerSensor = millis();
-    Serial.println(info);
-  }
-}
-void read_sensors() 
-{
-  if (millis() - sensorDataInterval >= timerSensor)
-  {
-    timerSensor = millis();
-    int sr1_state = digitalRead(SR1);
-    int sr2_state = digitalRead(SR2);
-    int sr1_analog_state = analogRead(SR1);
-    int sr2_analog_state = analogRead(SR2);
-    Serial.print("SR1 analog: ");
-    Serial.print(sr1_analog_state);
-    Serial.print("||Digital: ");
-    Serial.print(sr1_state);
 
-    Serial.print("   SR2 analog: ");
-    Serial.print(sr2_analog_state);
-    Serial.print("||Digital: ");
-    Serial.println(sr2_state);
-  }
-}
-void right_s()
+
+void rightS()
 {
   digitalWrite(MB1, HIGH);
   digitalWrite(MB2, HIGH);
 }
-void left_s()
+void leftS()
 {
   digitalWrite(MA1, HIGH);
   digitalWrite(MA2, HIGH);
 }
-void all_s()
+void allS()
 {
-  left_s();
-  right_s();
+  leftS();
+  rightS();
 }
-void left_f(int speed)
+void leftF(int speed)
 {
   analogWrite(MA2, speed);
-    analogWrite(MA1, 0);
+  analogWrite(MA1, 0);
 }
-void right_f(int speed)
+void rightF(int speed)
 {
   analogWrite(MB1, speed);
-    analogWrite(MB2, 0);
+  analogWrite(MB2, 0);
 }
-void right_b(int speed)
+void rightB(int speed)
 {
   analogWrite(MB2, speed);
   analogWrite(MB1, 0);
 }
-void left_b(int speed)
+void leftB(int speed)
 {
   analogWrite(MA1, speed);
-    analogWrite(MA2, 0);
+  analogWrite(MA2, 0);
 }
 void forward(int speed)
 {
-  right_f(speed);
-  left_f(speed);
+  rightF(speed);
+  leftF(speed);
 }
 void back(int speed)
 {
-  right_b(speed);
-  left_b(speed);
+  rightB(speed);
+  leftB(speed);
 } 
 void setRightMotor(int speed)
 {
   if (speed > 0)
   {
-    right_f(speed);
+    rightF(speed);
   } else if (speed < 0)
   {
-    right_b(speed * -1);
+    rightB(speed * -1);
   } else
   {
-    right_s();
+    rightS();
   }
 }
 void setLeftMotor(int speed)
 {
   if (speed > 0)
   {
-    left_f(speed);
+    leftF(speed);
   } else if (speed < 0)
   {
     speed = speed * -1;
-    left_b(speed);
+    leftB(speed);
   } else
   {
-    left_s();
+    leftS();
   }
 }
 void setBothMotor(int speed)
@@ -142,7 +125,7 @@ void stopAfterLeft(float rotations)
     Serial.print("Left wheel rotations: ");
     Serial.println(rotationsSr2);
   }
-  left_s(); 
+  leftS(); 
 }
 void stopAfterRight(float rotations) {
   rotationsSr2 = 0; 
@@ -150,52 +133,7 @@ void stopAfterRight(float rotations) {
     Serial.print("Right wheel rotations: ");
     Serial.println(rotationsSr2);
   }
-  right_s(); 
+  rightS(); 
 }
 
-
-
-float getDistance() {
-  digitalWrite(TRIG, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG, LOW);
-  
-  long duration = pulseIn(ECHO, HIGH);
-  float distance = duration * 0.034 / 2; 
-
-  return distance;
-}
-
-bool stopDistance(int threshold) {
-  float distance = getDistance();
-  
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-
-  if (distance > 0 && distance <= threshold) {
-    Serial.println("Obstacle detected! Stopping.");
-    return true;
-  }
-  return false;
-}
-bool moreDistance(int threshold) {
-  float distance = getDistance();
-  
-  Serial.print("More than distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
-
-  if (distance > 0 && distance >= threshold) {
-    Serial.println("Distance is good.");
-    return true;
-  } 
-  return false;
-  
-}
-void turnDegree(int deg){
-  return;
-}
 #endif
