@@ -76,33 +76,48 @@ void callibrate(){
 void read_color(){
     for (int i = 0; i < NUM_SENSORS; i++) {
       sensorValues[i] = analogRead(sensorPins[i]);
-      Serial.print(sensorValues[i]);
-      Serial.print(", ");
   }
-  Serial.println(" ");
+}
+void read_bool_color() {
+  for (int i = 0; i < NUM_SENSORS; i++) {
+      whereIsLine[i] = analogRead(sensorPins[i]) > black;
+  }
 }
 
 void optimus_followLine(){
-  read_color();
-  bool whereIsLine[NUM_SENSORS]; 
-  Serial.print("SSSensors: ");
-  for (int i = 0; i < NUM_SENSORS; i++) {
-    whereIsLine[i] =  (sensorValues[i] > black);
-    Serial.print(whereIsLine[i]);
-    Serial.print(", ");
-  }
-  Serial.println(" ");
-
+  read_bool_color();
   if (whereIsLine[3] || whereIsLine[4]) {
     setBothMotor(190);
-  } else if (whereIsLine[5] || whereIsLine[6] || whereIsLine[7]) {
-    leftF(250);
-  } else if (whereIsLine[2] || whereIsLine[1] || whereIsLine[0]) {
-    rightF(250);
-  }  else {
-    allS();
-    rightF(250);
+  } 
+  else if (whereIsLine[5] || whereIsLine[6] || whereIsLine[7]) {
+    setMotors(150, 250); 
+  } 
+  else if (whereIsLine[0] || whereIsLine[1] || whereIsLine[2]) {
+    setMotors(250, 150); 
+  } 
+
+}
+
+void optimus_followLine_final(){ // possible to try change values in order to increase speed
+  read_bool_color();
+
+
+   if (whereIsLine[3] || whereIsLine[4]) {
+    setBothMotor(250);  
+  } 
+  else if (whereIsLine[5] || whereIsLine[6]) {
+    setMotors(150, 250); 
+  } 
+  else if(whereIsLine[7]){
+    setMotors(0, 250); 
   }
+  else if (whereIsLine[2] || whereIsLine[1]) {
+    setMotors(250, 150);  
+  }  
+  else if(whereIsLine[0]) {
+    setMotors(255, 0); 
+  }
+
 
 }
 #endif

@@ -6,7 +6,8 @@
 
 #define NUM_SENSORS 8  
 int sensorPins[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5, A6, A7};
-int sensorValues[NUM_SENSORS];  
+int sensorValues[NUM_SENSORS];
+bool whereIsLine[NUM_SENSORS];  
 int black = 0;
 
 
@@ -26,6 +27,7 @@ int black = 0;
 const int pulses = 20;
 int rotationsSr1, rotationsSr2 = 0;
 int diameter = 6.5;
+
 
 // read sensor values
 const int sensorDataInterval = 500;
@@ -117,6 +119,11 @@ void setBothMotor(int speed)
 {
   setLeftMotor(speed);
   setRightMotor(speed);
+}
+void setMotors(int speed1, int speed2) 
+{
+  setLeftMotor(speed1);
+  setRightMotor(speed2);
 }
 void stopAfterLeft(float rotations) 
 {
