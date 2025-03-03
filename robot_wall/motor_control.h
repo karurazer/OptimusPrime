@@ -1,8 +1,11 @@
 #ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
 
+#include <Servo.h>
+
 
 // PINS
+#define SERVO 4
 
 #define NUM_SENSORS 8  
 int sensorPins[NUM_SENSORS] = {A0, A1, A2, A3, A4, A5, A6, A7};
@@ -17,13 +20,20 @@ int black = 0;
 #define MB1 6 // right
 #define MB2 5 // right
 
-#define SR1 3 // left wheel
-#define SR2 2 // right wheel
+#define SR1 0 // left wheel disconnect right now
+#define SR2 3 // right wheel
 
+// sonar pins
 #define TRIG 9
 #define ECHO 8
-// motor values
 
+#define TRIGL 12
+#define ECHOL 13
+
+#define TRIGR 7
+#define ECHOR 2
+
+// motor values
 const int pulses = 20;
 int rotationsSr1, rotationsSr2 = 0;
 int diameter = 6.5;
@@ -32,6 +42,10 @@ int diameter = 6.5;
 // read sensor values
 const int sensorDataInterval = 500;
 int timerSensor, timerMoreDistance, timerGoodDistance, timerColor = 0;
+
+// other values
+Servo myservo; // servo value
+bool withBotle = false;
 
 void countRotationsSr1() 
 {
@@ -101,6 +115,7 @@ void setRightMotor(int speed)
     rightS();
   }
 }
+
 void setLeftMotor(int speed)
 {
   if (speed > 0)
@@ -141,6 +156,12 @@ void stopAfterRight(float rotations) {
     Serial.println(rotationsSr2);
   }
   rightS(); 
+}
+
+void turnRight90() {
+  setMotors(220, -220);
+  stopAfterRight(0.65);
+  allS();
 }
 
 #endif
