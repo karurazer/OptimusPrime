@@ -2,8 +2,10 @@
 #define other_h
 
 #include "motor_control.h"
+
+
 // rotation sensor
-void read_sensors() 
+void read_rotation_sensors() 
 {
   if (millis() - sensorDataInterval >= timerSensor)
   {
@@ -23,47 +25,16 @@ void read_sensors()
     Serial.println(sr2_state);
   }
 }
-float getDistance() {
-  digitalWrite(TRIG, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG, LOW);
-  
-  long duration = pulseIn(ECHO, HIGH);
-  float distance = duration * 0.034 / 2; 
 
-  return distance;
-}
 
-//  return true If distance more than threshold
-bool moreDistance(int threshold) {
-  float distance = getDistance();
-  if (millis() - sensorDataInterval >= timerGoodDistance)
-        {
-          timerGoodDistance = millis();
-          Serial.print("Distance: ");
-          Serial.print(distance);
-          Serial.println(" cm");
-        }
-  if (distance > 0 && distance >= threshold) {
-     
-    Serial.println("Distance is good.");
-    return true;
-  } 
-  return false;
-  
-}
 
 
 
 // follow line code
 void callibrate(){
-  delay(1000);
-  digitalWrite(13, HIGH);
-  delay(1000);
-  digitalWrite(13, LOW);
+  delay(2000);
   black = analogRead(A4) - 150;
+
   if (millis() - sensorDataInterval >= timerColor)
   {
     timerColor = millis();
@@ -78,46 +49,71 @@ void read_color(){
       sensorValues[i] = analogRead(sensorPins[i]);
   }
 }
+
 void read_bool_color() {
   for (int i = 0; i < NUM_SENSORS; i++) {
       whereIsLine[i] = analogRead(sensorPins[i]) > black;
   }
 }
 
-void optimus_followLine(){
-  read_bool_color();
-  if (whereIsLine[3] || whereIsLine[4]) {
-    setBothMotor(190);
-  } 
-  else if (whereIsLine[5] || whereIsLine[6] || whereIsLine[7]) {
-    setMotors(150, 250); 
-  } 
-  else if (whereIsLine[0] || whereIsLine[1] || whereIsLine[2]) {
-    setMotors(250, 150); 
-  } 
+// end follow line code
 
+
+
+// optimus wall code
+
+// get current distance
+float getDistance(int trig=TRIG, int echo=ECHO) {
+  digitalWrite(trig, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig, LOW);
+  
+  long duration = pulseIn(echo, HIGH);
+  float distance = duration * 0.034 / 2; 
+
+  return distance;
 }
 
-void optimus_followLine_final(){ // possible to try change values in order to increase speed
-  read_bool_color();
-
-
-   if (whereIsLine[3] || whereIsLine[4]) {
-    setBothMotor(250);  
-  } 
-  else if (whereIsLine[5] || whereIsLine[6]) {
-    setMotors(150, 250); 
-  } 
-  else if(whereIsLine[7]){
-    setMotors(0, 250); 
-  }
-  else if (whereIsLine[2] || whereIsLine[1]) {
-    setMotors(250, 150);  
-  }  
-  else if(whereIsLine[0]) {
-    setMotors(255, 0); 
-  }
-
-
+//  return true If distance more than threshold
+bool moreDistance(float threshold, int trig=TRIG, int echo=ECHO) {
+  float distance = getDistance(trig, echo);
+  return distance > 0 && distance >= threshold;
 }
+
+void show_distance(int trig=TRIG, int echo=ECHO) {
+  float distance = getDistance(trig, echo);
+  if (millis() - sensorDataInterval >= timerGoodDistance)
+        {
+          timerGoodDistance = millis();
+          Serial.print("Distance: ");
+          Serial.print(distance);
+          Serial.println(" cm");
+        }
+}
+
+// servo code
+void open_servo() {
+  myservo.write(180); 
+}
+
+void close_servo() {
+  myservo.write(50);
+}
+
+void take_botle() {
+  if (!withBotle) {
+    setMotors(190, 190);
+    if (!moreDistance(3)) {
+      close_servo();
+      withBotle = true;
+      allS();
+    }
+  }
+  return;
+}
+
+// end servo code
+
 #endif
