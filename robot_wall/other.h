@@ -93,6 +93,21 @@ void show_distance(int trig=TRIG, int echo=ECHO) {
         }
 }
 
+bool moreDistanceL(float threshold) {
+  return moreDistance(threshold, TRIGL, ECHOL);
+}
+
+bool moreDistanceR(float threshold) {
+  return moreDistance(threshold, TRIGR, ECHOR);
+}
+
+float getDistanceL() {
+  return getDistance(TRIGL, ECHOL);
+}
+
+float getDistanceR() {
+  return getDistance(TRIGR, ECHOR);
+}
 // servo code
 void open_servo() {
   myservo.write(180); 
@@ -102,17 +117,6 @@ void close_servo() {
   myservo.write(50);
 }
 
-void take_botle() {
-  if (!withBotle) {
-    setMotors(190, 190);
-    if (!moreDistance(3)) {
-      close_servo();
-      withBotle = true;
-      allS();
-    }
-  }
-  return;
-}
 
 // end servo code
 

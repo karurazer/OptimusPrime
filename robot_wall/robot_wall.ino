@@ -29,52 +29,12 @@ void setup()
   attachInterrupt(digitalPinToInterrupt(SR2), countRotationsSr2, FALLING);
   // callibrating
   allS(); // stop motors
-  callibrate(); // set black color
-  open_servo();
+  // callibrate(); // set black color
+  // open_servo();
+  close_servo();
   Serial.println(black);
-}
-
-void optimus_avoiding_object(){
-  if (!moreDistance(20)){
-    allS();
-    delay(30);
-    leftF(250);
-    stopAfterLeft(0.75);
-    forward(250);
-    delay(500);
-    allS();
-    rightF(250);
-    stopAfterRight(0.75);
-    forward(250);
-    delay(1000);
-    allS();
-    rightF(250);
-    stopAfterRight(0.75);
-    forward(250);
-    delay(500);
-    allS();
-    leftF(250);
-    stopAfterLeft(0.75);
-
-  } else if(moreDistance(40)){
-    setBothMotor(250);
-  }
-}
-
-void otimus_basic_move(){
-  forward(250);
-  stopAfterRight(5);
-  allS();
-  back(250);
-  stopAfterRight(5);
-  allS();
-  delay(1000);
-  rightF(250);
-  stopAfterRight(0.75);
-  delay(500);
-  leftF(250);
-  stopAfterLeft(0.75);
-  delay(10000);
+  setMotors(255, 255);
+  front = getDistance();
 }
 
 void optimus_followLine_final(){ // try change values in order to increase speed
@@ -97,19 +57,130 @@ void optimus_followLine_final(){ // try change values in order to increase speed
   }
 }
 
-void optimus_wall() {
-  if (!moreDistance(15)) {
-    
-  } 
-  else if(moreDistance(20)){
-    setBothMotor(250);
+void rightTurn() {
+  setMotors(255, 100);
+  delay(500);
+}
+
+void leftTurn() {
+  setMotors(0, 255);
+  delay(800);
+}
+
+
+
+
+void rightTurnPro() {
+  right = getDistanceR();
+  int val = START_VALUE_RIGHT;
+  int timerSensorTurn = 0;
+
+  while (right > 7) { // Пока справа не будет препятствия
+    if (millis() - RIGHT_PRO_TURN_TIME >= timerSensorTurn)
+    {
+      timerSensorTurn = millis();
+      val += INCREASE_ON_RIGHT; 
+    }
+    setMotors(255, 255 - val); 
+    right = getDistanceR();
+    delay(10);
+  }
+}
+
+void turn() {
+  front = getDistance();
+  right = getDistanceR();
+  left = getDistanceL();
+
+  if (FRONTDISTTURN >= front) {
+    if (abs(right - left) < 5) {
+      setMotors(0, -255 + (5 * 15));
+      delay(500);
+      setMotors(-255, -255);
+      delay(500);
+      setMotors(-255, 255);
+    }
+    else if (right > left) {
+      setMotors(0, -255 + ((right - left) * 15));
+      delay(500);
+      setMotors(-255, -255);
+      delay(500);
+      setMotors(-255, 255);
+    } else if (left > right) {
+      setMotors(-255 + ((left - right) * 15), 0);
+      delay(500);
+      setMotors(-255, -255);
+      delay(500);
+      setMotors(255, -255);
+    } 
+    while (front < 20) {
+        front = getDistance();
+      }
   }
 }
 
 void loop()
 {
-  show_distance(TRIGR, ECHOR);
+  optimus_physical_walls();
+  // test();
+  // show_distance(TRIGL, ECHOL);
+  // turn();
+  
 }
 
+void optimus_physical_walls() { // криво едет вперед если пусто с лево и кривые повороты
+  front = getDistance();
+  left = getDistanceL();
+  right = getDistanceR();
+  int diff = abs(left - right);
+  
+  if (right > 15) { // if space turn right
+    rightTurn(); 
+  }
+  else if (front < 15 && left > 15) {
+    leftTurn();
+  }
+  else if (front < 7 && left < 15 && right < 15) { // problem here
+    if(right > left) {
+      setMotors(-200, -255);
+      delay(300);
+      setMotors(255, -255);
+    } else{ 
+      setMotors(-255, -200);
+      delay(300);
+      setMotors(-255, 255);
+    }
+    while (front < 30) {
+        front = getDistance();
+      }
+  }
+  else if (500 < left || left < 3) { // if near left wall go right  problem
+      setMotors(0, -255);
+  } 
+  else if (500 < right || right < 3) { // if near right wall go left problem
+    setMotors(-255, 0);
+  } 
+  else if (left > 30) { // if space go forward check problem
+    if (right < 7) {
+      setMotors(220, 250);
+    } else {
+      setMotors(255, 220);
+    }
+  } 
+  else if (left > right) { // forward problem mb
+    if ((255 - (diff * 10)) < MINSPEED) {
+      setMotors(MINSPEED, 255);
+    } else {
+      setMotors(255 - (diff * 10), 255);
+    }
+  } 
+  else if (left < right) { // forward problem mb
+     if ((255 - (diff * 10)) < MINSPEED) {
+      setMotors(255, MINSPEED);
+    } else {
+      setMotors(255, 255 - (diff * 10));
+    }
+  } 
+}
 
 
