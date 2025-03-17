@@ -64,10 +64,13 @@ void rightTurn() {
 
 void leftTurn() {
   setMotors(0, 255);
-  delay(800);
+  delay(700);
 }
 
-
+void leftTurnTest() {
+  setMotors(100, 255);
+  delay(500);
+}
 
 
 void rightTurnPro() {
@@ -121,8 +124,10 @@ void turn() {
 
 void loop()
 {
-  optimus_physical_walls();
-  // test();
+  // optimus_physical_walls();
+  // setMotors(255, 255);
+  test();
+  // straightBack(5000);
   // show_distance(TRIGL, ECHOL);
   // turn();
   
@@ -156,15 +161,25 @@ void optimus_physical_walls() { // криво едет вперед если п�
   }
   else if (500 < left || left < 3) { // if near left wall go right  problem
       setMotors(0, -255);
+      delay(200);
+      setMotors(255, 255);
+      delay(200);
+      setMotors(0, 255);
+      delay(200);
   } 
   else if (500 < right || right < 3) { // if near right wall go left problem
-    setMotors(-255, 0);
+      setMotors(-255, 0);
+      delay(200);
+      setMotors(255, 255);
+      delay(200);
+      setMotors(255, 0);
+      delay(200);
   } 
-  else if (left > 30) { // if space go forward check problem
-    if (right < 7) {
-      setMotors(220, 250);
+  else if (left > 15) { // if space go forward check problem
+    if (right < 10) {
+      setMotors(200, 250);
     } else {
-      setMotors(255, 220);
+      setMotors(255, 200);
     }
   } 
   else if (left > right) { // forward problem mb
@@ -183,4 +198,103 @@ void optimus_physical_walls() { // криво едет вперед если п�
   } 
 }
 
+void straight(int time) {
+  int now = millis(); 
+  left = getDistanceL(); 
+  
+  while (millis() - now < time) { 
+    if (left > 10) { 
+      setMotors(220, 255); 
+    } 
+    else {
+      setMotors(255, 220); 
+    }
+    
+    delay(10); 
+  }
+
+  allS(); 
+}
+void straightBack(int time) {
+  int now = millis();
+  
+  while (millis() - now < time) { 
+    left = getDistanceL();  // Расстояние слева
+    right = getDistanceR(); // Расстояние справа
+    float diff = left - right;    // Разница между боковыми датчиками
+
+    int baseSpeed = -255;  // Базовая скорость назад
+    int correction = map(abs(diff), 0, 10, 0, 50); // Насколько корректировать
+  
+    if (left > right) { 
+      setMotors(baseSpeed, baseSpeed - correction); // Подравниваем влево
+    } 
+    else if (right > left) {
+      setMotors(baseSpeed- correction, baseSpeed); // Подравниваем вправо
+    } 
+    else {
+      setMotors(baseSpeed, baseSpeed); // Двигаемся прямо
+    }
+
+    delay(10); 
+  }
+
+  allS(); // Останавливаемся по завершению
+}
+
+void turnAround() {
+  front = getDistance();
+  left = getDistanceL();
+  right = getDistanceR();
+
+  allS();
+  delay(100);
+  setMotors(-255, -255);
+  delay(100);
+
+  while (left < 25 || right < 25) {
+    if (right < 10) { 
+      setMotors(-255, -220);
+    } 
+    else {
+      setMotors(-220, -255);
+    }
+  right = getDistanceR();
+  left = getDistanceL(); 
+  delay(10);
+  }
+
+  setMotors(-255, -255);
+  delay(300);
+  right = getDistanceR();
+  if (right > 25) {
+    leftTurn();
+  }else {
+    rightTurn();
+  }
+  straight(500);
+}
+
+void test() {
+  front = getDistance();
+  left = getDistanceL();
+  right = getDistanceR();
+  int diff = abs(left - right);
+  
+  if (right > 25) {
+    rightTurn();
+  }
+  else if (left > 25 && front < 13) { 
+    leftTurn();
+  }
+  else if (front < 13 && left < 13 && right < 13) {
+    turnAround();
+  }
+  else  if (right > 10) { // чтобы вперед старый бог можно добавить более точное изменнение скорости с разницей
+    setMotors(255, 220);
+  } 
+  else {
+    setMotors(220, 255);
+  }
+}
 
