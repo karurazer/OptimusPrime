@@ -79,14 +79,14 @@ void countRotationsSr2()
 
 void rightS()
 {
-  digitalWrite(MB1, HIGH);
-  digitalWrite(MB2, HIGH);
+  analogWrite(MB1, 0);
+  analogWrite(MB2, 0);
 }
 
 void leftS()
 {
-  digitalWrite(MA1, HIGH);
-  digitalWrite(MA2, HIGH);
+  analogWrite(MA1, 0);
+  analogWrite(MA2, 0);
 }
 
 void allS()

@@ -242,7 +242,7 @@ void straightBack(int time) {
   allS(); // Останавливаемся по завершению
 }
 
-void turnAround() {
+void turnAroundBack() { // тупик задом езать
   front = getDistance();
   left = getDistanceL();
   right = getDistanceR();
@@ -253,7 +253,7 @@ void turnAround() {
   delay(100);
 
   while (left < 25 || right < 25) {
-    if (right < 10) { 
+    if (right > left) { 
       setMotors(-255, -220);
     } 
     else {
@@ -267,6 +267,7 @@ void turnAround() {
   setMotors(-255, -255);
   delay(300);
   right = getDistanceR();
+
   if (right > 25) {
     leftTurn();
   }else {
@@ -275,26 +276,52 @@ void turnAround() {
   straight(500);
 }
 
-void test() {
+void turnAround() { // problem related to 360 turns (must callibrate)
+  left = getDistanceL();
+  right = getDistanceR();
+  int diff = map(abs(right - left), 0, 16, 0, 300);
+  delay(10);
+
+  if (right > left) {
+    setMotors(0, -255);
+    delay(1000);
+    setMotors(-255, -255);
+    delay(diff);
+    setMotors(255, 0);
+    delay(700);
+  } else if (left > right) {
+    setMotors(-255, 0);
+    delay(1000);
+    setMotors(-255, -255);
+    delay(diff);
+    setMotors(0, 255);
+    delay(700);
+  } 
+}
+
+void test() { // is working без turnof 360
   front = getDistance();
   left = getDistanceL();
   right = getDistanceR();
-  int diff = abs(left - right);
+  int change = map(abs(right - 10), 0, 10, 20, 200);
   
   if (right > 25) {
     rightTurn();
   }
-  else if (left > 25 && front < 13) { 
+  else if (left > 25 && front <= 14) { 
     leftTurn();
   }
-  else if (front < 13 && left < 13 && right < 13) {
+  else if (front <= 13 && left <= 13 && right <= 13) {
     turnAround();
   }
-  else  if (right > 10) { // чтобы вперед старый бог можно добавить более точное изменнение скорости с разницей
-    setMotors(255, 220);
-  } 
-  else {
-    setMotors(220, 255);
+  else  if (right > 11) { 
+    setMotors(255, 255 - change);
   }
+  else if (right < 9) {
+    setMotors(255 - change, 255);
+  } else {
+    setMotors(255, 255);
+  }
+  delay(10);
 }
 
