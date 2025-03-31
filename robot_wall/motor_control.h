@@ -51,7 +51,7 @@ int black = 0;
 // motor values
 const int pulses = 20;
 int rotationsSr1, rotationsSr2 = 0;
-float diameter = 6.5;
+int diameter = 6.5;
 
 float front;
 float left;
@@ -62,10 +62,6 @@ float right;
 const int sensorDataInterval = 500;
 int timerSensor, timerMoreDistance, timerGoodDistance, timerColor = 0;
 
-// servo values
-int pulseWidth = 0; 
-unsigned long prevMillis = 0;
-const int interval = 20; 
 
 void countRotationsSr1() 
 {
@@ -203,5 +199,7 @@ void turnLeft90() {
   stopAfterRight(0.25);
   allS();
 }
+
+
 
 #endif

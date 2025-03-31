@@ -99,12 +99,12 @@ void start(){
   delay(1000);
   close_servo();
   leftTurn();
+  setMotors(255, 255);
   front = getDistance();
   right = getDistanceR();
   left = getDistanceL();
-  setMotors(255, 255);
+
   while(right >= 15 && front >= 15 && left >= 15) {
-    optimus_followLine();
     front = getDistance();
     right = getDistanceR();
     left = getDistanceL();
@@ -128,19 +128,19 @@ void stop() {
     delay(50);
   }
 }
-
 void loop()
 {
   optimus_physical_walls();
 }
+
+
 
 void optimus_physical_walls() { 
   front = getDistance();
   left = getDistanceL();
   right = getDistanceR();
   int change = map(abs(right - 10), 0, 10, 10, 200);
-  keep_servo();
-
+  
   if (right > 25) {
     rightTurn();
   }
@@ -162,7 +162,7 @@ void optimus_physical_walls() {
   stop();
 }
 
-void optimus_followLine(){ // try change values in order to increase speed
+void optimus_followLine_final(){ // try change values in order to increase speed
   read_bool_color();
   if (whereIsLine[3] || whereIsLine[4]) {
     setBothMotor(255);
@@ -179,5 +179,4 @@ void optimus_followLine(){ // try change values in order to increase speed
   else if(whereIsLine[0]) {
     setMotors(255, 0);
   }
-  delay(10);
 }
