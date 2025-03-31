@@ -62,9 +62,6 @@ float right;
 const int sensorDataInterval = 500;
 int timerSensor, timerMoreDistance, timerGoodDistance, timerColor = 0;
 
-// other values
-Servo myservo; // servo value
-bool withBotle = false;
 
 void countRotationsSr1() 
 {

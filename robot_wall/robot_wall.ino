@@ -2,10 +2,23 @@
 
 
 int pos = 0;
+
+void callibrate() {
+  allS();
+  open_servo();
+  delay(50);
+  close_servo();
+  delay(50);
+  open_servo();
+  delay(50);
+
+  callibrate_color();
+}
+
 void setup()
 {
   Serial.begin(9600);
-  myservo.attach(SERVO);
+  pinMode(SERVO, OUTPUT);
 
   pinMode(MA1, OUTPUT);
   pinMode(MA2, OUTPUT);
@@ -27,37 +40,14 @@ void setup()
 
   attachInterrupt(digitalPinToInterrupt(SR1), countRotationsSr1, FALLING);
   attachInterrupt(digitalPinToInterrupt(SR2), countRotationsSr2, FALLING);
+
   // callibrating
-  allS(); // stop motors
-  // callibrate(); // set black color
-  // open_servo();
-  close_servo();
-  Serial.println(black);
-  setMotors(255, 255);
+  callibrate(); // calibrate servo and motors
+  start();
   front = getDistance();
 }
 
-void optimus_followLine_final(){ // try change values in order to increase speed
-  read_bool_color();
-
-  if (whereIsLine[3] || whereIsLine[4]) {
-    setBothMotor(255);
-  }
-  else if (whereIsLine[5] || whereIsLine[6]) {
-    setMotors(170, 255);
-  }
-  else if(whereIsLine[7]){
-    setMotors(0, 255);
-  }
-  else if (whereIsLine[2] || whereIsLine[1]) {
-    setMotors(255, 170);
-  }
-  else if(whereIsLine[0]) {
-    setMotors(255, 0);
-  }
-}
-
-void rightTurn() {
+void rightTurn() { 
   setMotors(255, 100);
   delay(500);
 }
@@ -67,16 +57,15 @@ void leftTurn() {
   delay(700);
 }
 
-void leftTurnTest() {
+void leftTurnTest() { // test
   setMotors(100, 255);
   delay(500);
 }
 
-
-void rightTurnPro() {
+void rightTurnPro() { // test
   right = getDistanceR();
   int val = START_VALUE_RIGHT;
-  int timerSensorTurn = 0;
+  int timerSensorTurn = 7-0;
 
   while (right > 7) { // Пока справа не будет препятствия
     if (millis() - RIGHT_PRO_TURN_TIME >= timerSensorTurn)
@@ -84,44 +73,61 @@ void rightTurnPro() {
       timerSensorTurn = millis();
       val += INCREASE_ON_RIGHT; 
     }
-    setMotors(255, 255 - val); 
+    setMotors(255, 200 - val); 
     right = getDistanceR();
     delay(10);
   }
 }
 
-void turn() {
+void start(){
+  allS();
+  delay(200);
+  front = getDistance();
+
+  while (front > 10) {
+    delay(10);
+    front = getDistance();
+  }
+  delay(200);
+
+  while (front < 10) {
+    delay(10);
+    front = getDistance();
+  }
+
+  setMotors(255, 255);
+  delay(1000);
+  close_servo();
+  leftTurn();
+  setMotors(255, 255);
   front = getDistance();
   right = getDistanceR();
   left = getDistanceL();
 
-  if (FRONTDISTTURN >= front) {
-    if (abs(right - left) < 5) {
-      setMotors(0, -255 + (5 * 15));
-      delay(500);
-      setMotors(-255, -255);
-      delay(500);
-      setMotors(-255, 255);
-    }
-    else if (right > left) {
-      setMotors(0, -255 + ((right - left) * 15));
-      delay(500);
-      setMotors(-255, -255);
-      delay(500);
-      setMotors(-255, 255);
-    } else if (left > right) {
-      setMotors(-255 + ((left - right) * 15), 0);
-      delay(500);
-      setMotors(-255, -255);
-      delay(500);
-      setMotors(255, -255);
-    } 
-    while (front < 20) {
-        front = getDistance();
-      }
+  while(right >= 15 && front >= 15 && left >= 15) {
+    front = getDistance();
+    right = getDistanceR();
+    left = getDistanceL();
+    delay(10);
   }
 }
 
+void stop() {
+  read_bool_color();
+  for (bool i : whereIsLine) {
+    if (!i) {
+      return;
+    }
+  }
+
+  open_servo();
+  setMotors(-255, -255);
+  delay(2000);
+  while (true) {
+    allS();
+    delay(50);
+  }
+}
 void loop()
 {
   optimus_physical_walls();
@@ -153,5 +159,24 @@ void optimus_physical_walls() {
     setMotors(255, 255);
   }
   delay(10);
+  stop();
 }
 
+void optimus_followLine_final(){ // try change values in order to increase speed
+  read_bool_color();
+  if (whereIsLine[3] || whereIsLine[4]) {
+    setBothMotor(255);
+  }
+  else if (whereIsLine[5] || whereIsLine[6]) {
+    setMotors(170, 255);
+  }
+  else if(whereIsLine[7]){
+    setMotors(0, 255);
+  }
+  else if (whereIsLine[2] || whereIsLine[1]) {
+    setMotors(255, 170);
+  }
+  else if(whereIsLine[0]) {
+    setMotors(255, 0);
+  }
+}
