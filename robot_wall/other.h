@@ -31,7 +31,7 @@ void read_rotation_sensors()
 
 
 // follow line code
-void callibrate(){
+void callibrate_color(){
   delay(2000);
   black = analogRead(A4) - 150;
 
@@ -41,9 +41,9 @@ void callibrate(){
     Serial.print("Color value is: ");
     Serial.println(black);
   }
-
-  
 }
+
+
 void read_color(){
     for (int i = 0; i < NUM_SENSORS; i++) {
       sensorValues[i] = analogRead(sensorPins[i]);
@@ -75,7 +75,7 @@ float getDistance(int trig=TRIG, int echo=ECHO) {
 
   return distance;
 }
-
+  //sonar code
 //  return true If distance more than threshold
 bool moreDistance(float threshold, int trig=TRIG, int echo=ECHO) {
   float distance = getDistance(trig, echo);
@@ -108,14 +108,27 @@ float getDistanceL() {
 float getDistanceR() {
   return getDistance(TRIGR, ECHOR);
 }
-// servo code
+
+  //end sonar
+
+  // servo code
+void setServoAngle(int angle) {
+  int pulseWidth = map(angle, 0, 180, 500, 2500); 
+  
+  digitalWrite(SERVO, HIGH);
+  delayMicroseconds(pulseWidth); 
+  digitalWrite(SERVO, LOW);
+  delay(20);
+}
+
 void open_servo() {
-  myservo.write(180); 
+  setServoAngle(120);
 }
 
 void close_servo() {
-  myservo.write(50);
+  setServoAngle(43);
 }
+  //end servo
 
 void turnAround() { 
   left = getDistanceL();
@@ -142,6 +155,8 @@ void turnAround() {
   delay(10);
 }
 
-// end servo code
+
+
+
 
 #endif
