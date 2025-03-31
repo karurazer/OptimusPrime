@@ -123,19 +123,19 @@ void close_servo() {
 void turnAround() { 
   left = getDistanceL();
   right = getDistanceR();
-  int diff = map(abs(right - left), 0, 16, 0, 280);
+  int diff = map(abs(right - left), 0, 16, 0, 270);
   delay(10);
 
   if (right > left) {
     setMotors(0, -255);
-    delay(1000);
+    delay(900);
     setMotors(-255, -255);
     delay(diff);
     setMotors(255, 0);
     delay(700);
   } else {
     setMotors(-255, 0);
-    delay(1000);
+    delay(900);
     setMotors(-255, -255);
     delay(diff);
     setMotors(0, 255);
