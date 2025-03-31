@@ -3,7 +3,6 @@
 
 #include "motor_control.h"
 
-
 // rotation sensor
 void read_rotation_sensors() 
 {
@@ -26,10 +25,6 @@ void read_rotation_sensors()
   }
 }
 
-
-
-
-
 // follow line code
 void callibrate_color(){
   delay(2000);
@@ -42,7 +37,6 @@ void callibrate_color(){
     Serial.println(black);
   }
 }
-
 
 void read_color(){
     for (int i = 0; i < NUM_SENSORS; i++) {
@@ -57,10 +51,6 @@ void read_bool_color() {
 }
 
 // end follow line code
-
-
-
-// optimus wall code
 
 // get current distance
 float getDistance(int trig=TRIG, int echo=ECHO) {
