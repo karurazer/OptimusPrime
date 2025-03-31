@@ -139,7 +139,8 @@ void optimus_physical_walls() {
   left = getDistanceL();
   right = getDistanceR();
   int change = map(abs(right - 10), 0, 10, 10, 200);
-  
+  keep_servo();
+
   if (right > 25) {
     rightTurn();
   }
@@ -178,4 +179,5 @@ void optimus_followLine(){ // try change values in order to increase speed
   else if(whereIsLine[0]) {
     setMotors(255, 0);
   }
+  delay(10);
 }

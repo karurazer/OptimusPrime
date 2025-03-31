@@ -27,7 +27,7 @@ void read_rotation_sensors()
 
 // follow line code
 void callibrate_color(){
-  delay(2000);
+  delay(1000);
   black = analogRead(A4) - 150;
 
   if (millis() - sensorDataInterval >= timerColor)
@@ -103,7 +103,7 @@ float getDistanceR() {
 
   // servo code
 void setServoAngle(int angle) {
-  int pulseWidth = map(angle, 0, 180, 500, 2500); 
+  pulseWidth = map(angle, 0, 180, 500, 2500); 
   
   digitalWrite(SERVO, HIGH);
   delayMicroseconds(pulseWidth); 
@@ -117,6 +117,19 @@ void open_servo() {
 
 void close_servo() {
   setServoAngle(43);
+}
+
+void keep_servo() {
+  unsigned long currentMillis = millis();
+  
+  if (currentMillis - prevMillis >= interval) {
+    prevMillis = currentMillis;
+    
+    // Отправляем одиночный импульс
+    digitalWrite(SERVO, HIGH);
+    delayMicroseconds(pulseWidth);
+    digitalWrite(SERVO, LOW);
+  }
 }
   //end servo
 
