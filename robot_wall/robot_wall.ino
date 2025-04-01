@@ -17,7 +17,7 @@ void callibrate() {
 
 void setup()
 {
-  Serial.begin(9600);
+  // Serial.begin(9600);
   pinMode(SERVO, OUTPUT);
 
   pinMode(MA1, OUTPUT);
@@ -65,7 +65,7 @@ void leftTurnTest() { // test
 void rightTurnPro() { // test
   right = getDistanceR();
   int val = START_VALUE_RIGHT;
-  int timerSensorTurn = 7-0;
+  int timerSensorTurn = 0;
 
   while (right > 7) { // Пока справа не будет препятствия
     if (millis() - RIGHT_PRO_TURN_TIME >= timerSensorTurn)
@@ -131,6 +131,7 @@ void stop() {
 void loop()
 {
   optimus_physical_walls();
+  // Serial.println(getDistanceL());
 }
 
 
@@ -155,7 +156,8 @@ void optimus_physical_walls() {
   }
   else if (right < 9) {
     setMotors(255 - change, 255);
-  } else {
+  } 
+  else {
     setMotors(255, 255);
   }
   delay(10);

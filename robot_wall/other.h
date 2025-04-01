@@ -3,6 +3,7 @@
 
 #include "motor_control.h"
 
+
 // rotation sensor
 void read_rotation_sensors() 
 {
@@ -25,9 +26,13 @@ void read_rotation_sensors()
   }
 }
 
+
+
+
+
 // follow line code
 void callibrate_color(){
-  delay(1000);
+  delay(2000);
   black = analogRead(A4) - 150;
 
   if (millis() - sensorDataInterval >= timerColor)
@@ -37,6 +42,7 @@ void callibrate_color(){
     Serial.println(black);
   }
 }
+
 
 void read_color(){
     for (int i = 0; i < NUM_SENSORS; i++) {
@@ -51,6 +57,10 @@ void read_bool_color() {
 }
 
 // end follow line code
+
+
+
+// optimus wall code
 
 // get current distance
 float getDistance(int trig=TRIG, int echo=ECHO) {
@@ -103,7 +113,7 @@ float getDistanceR() {
 
   // servo code
 void setServoAngle(int angle) {
-  pulseWidth = map(angle, 0, 180, 500, 2500); 
+  int pulseWidth = map(angle, 0, 180, 500, 2500); 
   
   digitalWrite(SERVO, HIGH);
   delayMicroseconds(pulseWidth); 
@@ -118,37 +128,24 @@ void open_servo() {
 void close_servo() {
   setServoAngle(43);
 }
-
-void keep_servo() {
-  unsigned long currentMillis = millis();
-  
-  if (currentMillis - prevMillis >= interval) {
-    prevMillis = currentMillis;
-    
-    // Отправляем одиночный импульс
-    digitalWrite(SERVO, HIGH);
-    delayMicroseconds(pulseWidth);
-    digitalWrite(SERVO, LOW);
-  }
-}
   //end servo
 
 void turnAround() { 
   left = getDistanceL();
   right = getDistanceR();
-  int diff = map(abs(right - left), 0, 16, 0, 270);
+  int diff = map(abs(right - left), 0, 16, 0, 280);
   delay(10);
 
   if (right > left) {
     setMotors(0, -255);
-    delay(900);
+    delay(1000);
     setMotors(-255, -255);
     delay(diff);
     setMotors(255, 0);
     delay(700);
   } else {
     setMotors(-255, 0);
-    delay(900);
+    delay(1000);
     setMotors(-255, -255);
     delay(diff);
     setMotors(0, 255);

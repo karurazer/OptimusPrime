@@ -28,8 +28,8 @@ int black = 0;
 #define TRIG 9
 #define ECHO 8
 
-#define TRIGL 12
-#define ECHOL 13
+#define TRIGL 13
+#define ECHOL 12
 
 #define TRIGR 7
 #define ECHOR 2
