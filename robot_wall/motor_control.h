@@ -1,9 +1,6 @@
 #ifndef MOTOR_CONTROL_H
 #define MOTOR_CONTROL_H
 
-#include <Servo.h>
-
-
 // PINS
 #define SERVO 4
 
@@ -13,7 +10,6 @@ int sensorValues[NUM_SENSORS];
 bool whereIsLine[NUM_SENSORS];  
 bool prev[NUM_SENSORS];
 int black = 0;
-
 
 #define MA1 10 // left 
 #define MA2 11 // left
@@ -34,7 +30,6 @@ int black = 0;
 #define TRIGR 7
 #define ECHOR 2
 
-
 #define RIGHT_PRO_TURN_TIME 50
 #define INCREASE_ON_RIGHT 20
 #define START_VALUE_RIGHT 10;
@@ -43,8 +38,7 @@ int black = 0;
 #define INCREASE_ON_LEFT 60
 #define START_VALUE_LEFT 40
 
-#define KEEPDISTANCE 6
-#define FRONTDISTTURN 6
+#define KEEPDISTANCE 9
 
 #define MINSPEED 170
 
@@ -57,12 +51,23 @@ float front;
 float left;
 float right;
 
-
 // read sensor values
 const int sensorDataInterval = 500;
 int timerSensor, timerMoreDistance, timerGoodDistance, timerColor = 0;
 
+// servo values
+int pulseWidth = 0; 
+unsigned long prevMillis = 0;
+const int interval = 20; 
 
+// main loop
+unsigned long previousMillis = 0;
+unsigned long intervalMain = 50;
+// black 
+
+int waitBlack = 200;
+unsigned long startBlack = 0;
+bool firstCheckDone = false; 
 void countRotationsSr1() 
 {
   rotationsSr1++; 
@@ -72,7 +77,6 @@ void countRotationsSr2()
 {
   rotationsSr2++; 
 }
-
 
 void rightS()
 {
@@ -199,7 +203,5 @@ void turnLeft90() {
   stopAfterRight(0.25);
   allS();
 }
-
-
 
 #endif

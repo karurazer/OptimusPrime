@@ -1,7 +1,7 @@
 #include "other.h"
 
 
-int pos = 0;
+int pos = 0; // add servo keep
 
 void callibrate() {
   allS();
@@ -48,8 +48,11 @@ void setup()
 }
 
 void rightTurn() { 
-  setMotors(255, 100);
-  delay(500);
+  setMotors(255, 90);
+  while (getDistanceR() >= KEEPDISTANCE + 1) {
+    stop();
+    delay(50);
+  }
 }
 
 void leftTurn() {
@@ -63,20 +66,7 @@ void leftTurnTest() { // test
 }
 
 void rightTurnPro() { // test
-  right = getDistanceR();
-  int val = START_VALUE_RIGHT;
-  int timerSensorTurn = 0;
-
-  while (right > 7) { // Пока справа не будет препятствия
-    if (millis() - RIGHT_PRO_TURN_TIME >= timerSensorTurn)
-    {
-      timerSensorTurn = millis();
-      val += INCREASE_ON_RIGHT; 
-    }
-    setMotors(255, 200 - val); 
-    right = getDistanceR();
-    delay(10);
-  }
+  setMotors(255, 100);
 }
 
 void start(){
@@ -84,19 +74,19 @@ void start(){
   delay(200);
   front = getDistance();
 
-  while (front > 10) {
-    delay(10);
+  while (front > 20) {
+    delay(50);
     front = getDistance();
   }
   delay(200);
 
-  while (front < 10) {
-    delay(10);
+  while (front < 20) {
+    delay(50);
     front = getDistance();
   }
-
+  delay(450);
   setMotors(255, 255);
-  delay(1000);
+  delay(950);
   close_servo();
   leftTurn();
   setMotors(255, 255);
@@ -105,80 +95,106 @@ void start(){
   left = getDistanceL();
 
   while(right >= 15 && front >= 15 && left >= 15) {
-    front = getDistance();
+    optimus_followLine();
+    front = getDistance();  
     right = getDistanceR();
     left = getDistanceL();
     delay(10);
   }
 }
 
-void stop() {
-  read_bool_color();
-  for (bool i : whereIsLine) {
-    if (!i) {
-      return;
-    }
+int isBlack() {
+  int numberBlack = 0;
+  for (int i = 0; i < NUM_SENSORS; i++) {
+      if((analogRead(sensorPins[i]) > black)) {
+        numberBlack++;
+      }
   }
 
-  open_servo();
-  setMotors(-255, -255);
-  delay(2000);
-  while (true) {
-    allS();
-    delay(50);
+  return numberBlack;
+}
+
+void stop() {
+  // Проверяем, если isBlack() возвращает true (черная линия)
+  if (isBlack() >= 4) {
+    // Если первая проверка не была сделана
+    if (!firstCheckDone) {
+      startBlack = millis(); // Запоминаем время первого обнаружения черной линии      
+      firstCheckDone = true; // Устанавливаем флаг, что первая проверка выполнена
   }
 }
+
+  // Если прошло достаточно времени для повторной проверки
+  if (firstCheckDone && millis() - startBlack >= waitBlack) {
+    // Если черная линия снова обнаружена
+    if (isBlack() >= 4) {
+      setMotors(0, 0);
+      setMotors(-255, -255);
+      delay(200);
+      open_servo();
+      setMotors(-255, -255);
+      delay(1800);
+      allS();
+      while (true) {
+        delay(50);
+      }
+    }
+  }
+}
+
 void loop()
 {
   optimus_physical_walls();
-  // Serial.println(getDistanceL());
 }
-
-
 
 void optimus_physical_walls() { 
-  front = getDistance();
-  left = getDistanceL();
-  right = getDistanceR();
-  int change = map(abs(right - 10), 0, 10, 10, 200);
-  
-  if (right > 25) {
-    rightTurn();
-  }
-  else if (left > 25 && front <= 14) { 
-    leftTurn();
-  }
-  else if (front <= 13 && left <= 13 && right <= 13) {
-    turnAround();
-  }
-  else  if (right > 11) { 
-    setMotors(255, 255 - change);
-  }
-  else if (right < 9) {
-    setMotors(255 - change, 255);
-  } 
-  else {
-    setMotors(255, 255);
-  }
-  delay(10);
-  stop();
-}
+  if (millis() - previousMillis >= intervalMain) {
+    previousMillis = millis();
+    
+    front = getDistance();
+    left = getDistanceL();
+    right = getDistanceR();
 
-void optimus_followLine_final(){ // try change values in order to increase speed
-  read_bool_color();
-  if (whereIsLine[3] || whereIsLine[4]) {
-    setBothMotor(255);
+    int change = map(abs(right - 10), 0, 10, 10, 200); // 10 mid pos
+
+    if (right > 22) {
+      rightTurn();
+    } 
+    else if (left > 22 && front <= 15) { 
+      leftTurn();
+    } 
+    else if (front <= 13 && left <= 13 && right <= 13) {
+      turnAround();
+    } 
+    else if (right >= KEEPDISTANCE - 1) { // как сделать движение вперед стабильнее  
+      setMotors(255, 255 - change);
+    } 
+    else if (right <= KEEPDISTANCE + 1) {
+      setMotors(255 - change, 255);
+    } 
+    else {
+      setMotors(255, 255);
+    }
+
+    stop();
+    }
   }
-  else if (whereIsLine[5] || whereIsLine[6]) {
-    setMotors(170, 255);
-  }
-  else if(whereIsLine[7]){
-    setMotors(0, 255);
-  }
-  else if (whereIsLine[2] || whereIsLine[1]) {
-    setMotors(255, 170);
-  }
-  else if(whereIsLine[0]) {
-    setMotors(255, 0);
+
+  void optimus_followLine() { // try change values in order to increase speed
+    read_bool_color();
+    if (whereIsLine[3] || whereIsLine[4]) {
+      setBothMotor(255);
+    }
+    else if (whereIsLine[5] || whereIsLine[6]) {
+      setMotors(190, 255);
+    }
+    else if(whereIsLine[7]){
+      setMotors(170, 255);
+    }
+    else if (whereIsLine[2] || whereIsLine[1]) {
+      setMotors(255, 190);
+    }
+    else if(whereIsLine[0]) {
+      setMotors(255, 170);
   }
 }

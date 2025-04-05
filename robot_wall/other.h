@@ -1,5 +1,5 @@
-#ifndef other_h
-#define other_h
+#ifndef OTHER_H
+#define OTHER_H
 
 #include "motor_control.h"
 
@@ -26,10 +26,6 @@ void read_rotation_sensors()
   }
 }
 
-
-
-
-
 // follow line code
 void callibrate_color(){
   delay(2000);
@@ -42,7 +38,6 @@ void callibrate_color(){
     Serial.println(black);
   }
 }
-
 
 void read_color(){
     for (int i = 0; i < NUM_SENSORS; i++) {
@@ -58,39 +53,60 @@ void read_bool_color() {
 
 // end follow line code
 
-
-
 // optimus wall code
 
 // get current distance
-float getDistance(int trig=TRIG, int echo=ECHO) {
-  digitalWrite(trig, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trig, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trig, LOW);
-  
-  long duration = pulseIn(echo, HIGH);
-  float distance = duration * 0.034 / 2; 
 
-  return distance;
+//sonar code
+int getDistanceFrom(int trigPin, int echoPin) {
+  const int numSamples = 4;
+  int readings[numSamples];
+
+  for (int i = 0; i < numSamples; i++) {
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    long duration = pulseIn(echoPin, HIGH, 6000);
+    readings[i] = duration > 0 ? duration * 0.034 / 2 : 60;
+    
+    // Ограничение на 50 см
+    if (readings[i] > 50) {
+      readings[i] = 50;
+    }
+    delay(2);
+  }
+
+  
+  for (int i = 0; i < numSamples - 1; i++) {
+    for (int j = i + 1; j < numSamples; j++) {
+      if (readings[i] > readings[j]) {
+        int temp = readings[i];
+        readings[i] = readings[j];
+        readings[j] = temp;
+      }
+    }
+  }
+  return readings[numSamples / 2];
 }
-  //sonar code
+
 //  return true If distance more than threshold
 bool moreDistance(float threshold, int trig=TRIG, int echo=ECHO) {
-  float distance = getDistance(trig, echo);
+  float distance = getDistanceFrom(trig, echo);
   return distance > 0 && distance >= threshold;
 }
 
 void show_distance(int trig=TRIG, int echo=ECHO) {
-  float distance = getDistance(trig, echo);
+  float distance = getDistanceFrom(trig, echo);
   if (millis() - sensorDataInterval >= timerGoodDistance)
-        {
-          timerGoodDistance = millis();
-          Serial.print("Distance: ");
-          Serial.print(distance);
-          Serial.println(" cm");
-        }
+    {
+      timerGoodDistance = millis();
+      Serial.print("Distance: ");
+      Serial.print(distance);
+      Serial.println(" cm");
+    }
 }
 
 bool moreDistanceL(float threshold) {
@@ -101,12 +117,16 @@ bool moreDistanceR(float threshold) {
   return moreDistance(threshold, TRIGR, ECHOR);
 }
 
-float getDistanceL() {
-  return getDistance(TRIGL, ECHOL);
+int getDistance() {
+  return getDistanceFrom(TRIG, ECHO);
 }
 
-float getDistanceR() {
-  return getDistance(TRIGR, ECHOR);
+int getDistanceR() {
+  return getDistanceFrom(TRIGR, ECHOR);
+}
+
+int getDistanceL() {
+  return getDistanceFrom(TRIGL, ECHOL);
 }
 
   //end sonar
@@ -123,40 +143,54 @@ void setServoAngle(int angle) {
 
 void open_servo() {
   setServoAngle(120);
+  pulseWidth = 120;
 }
 
 void close_servo() {
   setServoAngle(43);
+  pulseWidth = 43;
+}
+
+void keep_servo() {
+  unsigned long currentMillis = millis();
+  
+  if (currentMillis - prevMillis >= interval) {
+    prevMillis = currentMillis;
+    
+    digitalWrite(SERVO, HIGH);
+    delayMicroseconds(pulseWidth);
+    digitalWrite(SERVO, LOW);
+  }
 }
   //end servo
 
 void turnAround() { 
   left = getDistanceL();
   right = getDistanceR();
-  int diff = map(abs(right - left), 0, 16, 0, 280);
+  int diff = map(abs(right - left), 0, 10, 10, 220);
+  setMotors(0, 0);
   delay(10);
 
   if (right > left) {
     setMotors(0, -255);
-    delay(1000);
+    delay(900);
     setMotors(-255, -255);
     delay(diff);
+    setMotors(0, 0);
+    delay(10);
     setMotors(255, 0);
-    delay(700);
+    delay(550);
   } else {
     setMotors(-255, 0);
-    delay(1000);
+    delay(900);
     setMotors(-255, -255);
     delay(diff);
+    setMotors(0, 0);
+    delay(10);
     setMotors(0, 255);
-    delay(700);
+    delay(550);
   } 
   setMotors(255, 255);
-  delay(10);
 }
-
-
-
-
 
 #endif
